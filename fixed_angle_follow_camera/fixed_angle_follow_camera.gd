@@ -106,7 +106,51 @@ func _physics_process(delta: float) -> void:
     camera.transform = camera.transform.interpolate_with(
             camera_transform, weight)
 
-    # lerp the shader globals for the cutout position
+func _process(delta: float) -> void:
+    _handle_camera_occlusion(delta)
+    pass
+
+func _update_camera_transform() -> void:
+    if not is_node_ready():
+        return
+
+    # find the y/z coordinates for the camera based on the viewing angle &
+    # distance
+    var angle_rad = deg_to_rad(angle)
+    var y = sin(angle_rad) * distance
+    var z = cos(angle_rad) * distance
+
+    camera_transform.origin.y = y
+    camera_transform.origin.z = z
+    camera_transform = camera_transform.looking_at(Vector3.ZERO)
+
+## Detect camera occlusion, and update global shader values to cut a whole in
+## materials so the player is visible
+func _handle_camera_occlusion(delta: float) -> void:
+   
+    # Do a raycast from the camera root position (the player) to the camera.
+    # Note the manual adjustment on y here, it's because the root is at the
+    # player's feet, and this tries to center more on their chest.
+    _ray_query_params.from = global_position
+    _ray_query_params.from.y += 1.0
+    _ray_query_params.to = camera.global_position
+    _ray_query_params.collision_mask = 1
+    var result = get_world_3d() \
+            .direct_space_state \
+            .intersect_ray(_ray_query_params)
+    
+    if not result:
+        # No collision, update the cutout radius to be zero
+        _cutout_target[2] = 0.0
+    else:
+        _cutout_target = [
+            camera.global_position,
+            result["position"],
+            3,
+        ]
+
+    # Lerp the cutout target values to make the cutout be less jarring
+    var weight = clampf(delta * interpolate_speed, 0, 1.0)
     var cutout = [
         _cutout[0].lerp(_cutout_target[0], weight),
         _cutout[1].lerp(_cutout_target[1], weight),
@@ -125,44 +169,6 @@ func _physics_process(delta: float) -> void:
         RenderingServer.global_shader_parameter_set(
                 "camera_occlusion_cutout_radius",
                 _cutout[2])
-
-   
-func _process(_delta: float) -> void:
-    _handle_camera_occlusion()
-    pass
-
-func _update_camera_transform() -> void:
-    if not is_node_ready():
-        return
-
-    # find the y/z coordinates for the camera based on the viewing angle &
-    # distance
-    var angle_rad = deg_to_rad(angle)
-    var y = sin(angle_rad) * distance
-    var z = cos(angle_rad) * distance
-
-    camera_transform.origin.y = y
-    camera_transform.origin.z = z
-    camera_transform = camera_transform.looking_at(Vector3.ZERO)
-
-func _handle_camera_occlusion() -> void:
-    _ray_query_params.to = camera.global_position
-    _ray_query_params.from = global_position
-    _ray_query_params.from.y += 0.5
-    _ray_query_params.collision_mask = 1
-    var result = get_world_3d() \
-            .direct_space_state \
-            .intersect_ray(_ray_query_params)
-    # print(result)
-    if not result:
-        _cutout_target[2] = 0.0
-    else:
-        _cutout_target = [
-            camera.global_position,
-            result["position"],
-            3,
-        ]
-
 
 func _orbit_camera(degrees: float) -> void:
     # assert(delta >= -1.0 && delta <= 1.0)
