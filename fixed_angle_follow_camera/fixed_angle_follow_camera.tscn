@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3 uid="uid://ymolv6xagq8g"]
+
+[ext_resource type="Script" uid="uid://2ixc5md7kxv5" path="res://fixed_angle_follow_camera/fixed_angle_follow_camera.gd" id="1_o2y1q"]
+[ext_resource type="Script" uid="uid://c4qe7p2582hpv" path="res://fixed_angle_follow_camera/fps_label.gd" id="2_urd5f"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xmm0a"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.74, 0.5957, 0.16280003, 0.05882353)
+stencil_mode = 3
+stencil_flags = 2
+stencil_reference = 16
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_qft25"]
+material = SubResource("StandardMaterial3D_xmm0a")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_eiyc8"]
+
+[node name="FixedAngleFollowCamera" type="Node3D" node_paths=PackedStringArray("camera", "camera_pivot", "occlusion_cutout")]
+script = ExtResource("1_o2y1q")
+v_offset = 1.4
+orbit_speed = -0.01
+camera = NodePath("CameraPivot/Camera3D")
+camera_pivot = NodePath("CameraPivot")
+occlusion_cutout = NodePath("CameraPivot/OcclusionCutoutMesh")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+
+[node name="OcclusionCutoutMesh" type="MeshInstance3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.57357645, -0.81915206, 0, 0.81915206, 0.57357645, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_qft25")
+skeleton = NodePath("../..")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
+fov = 22.0
+far = 500.0
+
+[node name="Area3D" type="Area3D" parent="CameraPivot"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CameraPivot/Area3D"]
+shape = SubResource("CapsuleShape3D_eiyc8")
+
+[node name="FpsLabel" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 31
+text = "FPS"
+script = ExtResource("2_urd5f")

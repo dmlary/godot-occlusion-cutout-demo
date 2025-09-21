@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://sxx8sg2wtcqh"]
+
+[ext_resource type="Shader" uid="uid://b4fyngmqyduxx" path="res://textures/wall-visual-shader.tres" id="1_pja2j"]
+[ext_resource type="Texture2D" uid="uid://bip0tn6ag07m5" path="res://textures/wall-light.png" id="2_t2agb"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_pja2j")
+shader_parameter/texture_scale = Vector2(0.5, 0.5)
+shader_parameter/albedo_texture = ExtResource("2_t2agb")
+shader_parameter/triplanar_scale = Vector3(1, 1, 1)
+shader_parameter/triplanar_offset = Vector3(0, 0, 0)
+shader_parameter/triplanar_sharpness = 0.5
