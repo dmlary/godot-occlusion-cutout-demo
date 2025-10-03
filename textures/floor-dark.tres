@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dt43y0ephlxha"]
+
+[ext_resource type="Shader" uid="uid://bmf0xffgc682e" path="res://textures/floor-visual-shader.tres" id="1_bnikv"]
+[ext_resource type="Texture2D" uid="uid://by1ghyci1frw2" path="res://textures/floor-dark.png" id="2_bnikv"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_bnikv")
+shader_parameter/texture_scale = Vector2(0.5, 0.5)
+shader_parameter/albedo_texture = ExtResource("2_bnikv")
