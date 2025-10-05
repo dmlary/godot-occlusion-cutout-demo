@@ -41,8 +41,8 @@ extends Node3D
 @export var camera : Camera3D
 ## Node used to pivot the camera
 @export var camera_pivot: Node3D
-## MeshInstance3D that is used to draw our occlusion stencil
-@export var occlusion_cutout: MeshInstance3D
+## Area3D used to detect the roof
+@export var roof_area_3d: Area3D
 
 # Targets for camera component transforms
 var camera_position := Vector3()
@@ -67,8 +67,14 @@ func _ready() -> void:
     camera_pivot_transform = camera_pivot.transform
     _update_camera_transform()
     camera.transform = camera_transform
+
+    # set up the occlusion cutout
     _cutout_target = [camera.global_position, Vector3(), 0]
     _cutout = _cutout_target.duplicate()
+
+    # set up the roof detector
+    roof_area_3d.area_entered.connect(func(a): a.fade = true)
+    roof_area_3d.area_exited.connect(func(a): a.fade = false)
     
 func _unhandled_input(event: InputEvent) -> void:
     if event.is_action("camera_zoom_in"):
@@ -184,7 +190,7 @@ func _handle_roof_occlusion(_delta: float) -> void:
             .direct_space_state \
             .intersect_ray(_ray_query_params)
    
-    print(result)
+    # print(result)
 
     # go from collider to some sort of fade-group
     #   - this contains those meshes that should be faded with this item

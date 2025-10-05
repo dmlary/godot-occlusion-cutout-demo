@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://ch7tuei7e8ljj"]
+[gd_scene load_steps=37 format=3 uid="uid://ch7tuei7e8ljj"]
 
 [ext_resource type="Material" uid="uid://076cmmcj36l1" path="res://textures/dark-cross_major.tres" id="1_m8u5f"]
 [ext_resource type="Material" uid="uid://sxx8sg2wtcqh" path="res://textures/wall-light.tres" id="2_4bqqs"]
@@ -8,6 +8,7 @@
 [ext_resource type="Material" uid="uid://yqgmrvrg4lrw" path="res://textures/wall-purple.tres" id="4_4bqqs"]
 [ext_resource type="Material" uid="uid://bbs47a03gr2ag" path="res://textures/wall-green.tres" id="5_ynsuh"]
 [ext_resource type="Material" uid="uid://dt43y0ephlxha" path="res://textures/floor-dark.tres" id="8_v7dth"]
+[ext_resource type="Script" uid="uid://ciieyu3xk8a1c" path="res://fade_area_3d.gd" id="9_pi42a"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_m8u5f"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -95,6 +96,12 @@ points = PackedVector3Array(6.499999, 2.5, 0.25, 6.499999, 2.5, -0.25, -6.5, 2.5
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ofol1"]
 points = PackedVector3Array(5, 0.25, 6.499999, 5, -0.25, 6.499999, 5, 0.25, -6.5, -5, 0.25, 6.499999, -5, -0.25, 6.499999, 5, -0.25, -6.5, -5, 0.25, -6.5, -5, -0.25, -6.5)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_h1jm5"]
+size = Vector3(13, 0.25804138, 13)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pi42a"]
+size = Vector3(13, 4.2533245, 13)
+
 [node name="Node3D" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -103,6 +110,16 @@ environment = SubResource("Environment_o00ia")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.4939419, 0.8216283, -0.2845143, 0, 0.3272179, 0.9449489, 0.8694949, -0.46674988, 0.16162664, 0, 0, 0)
 shadow_enabled = true
+
+[node name="Player" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_is3ju")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.3877945, 0, -9.48501)
+collision_mask = 13
+camera = NodePath("../FixedAngleFollowCamera/CameraPivot/Camera3D")
+
+[node name="FixedAngleFollowCamera" parent="." node_paths=PackedStringArray("follow_node") instance=ExtResource("3_o00ia")]
+follow_node = NodePath("../Player")
+cutout_radius = 3.25
+cutout_interpolation = 9.0
 
 [node name="Ground" type="StaticBody3D" parent="."]
 
@@ -172,25 +189,13 @@ surface_material_override/0 = ExtResource("5_ynsuh")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GreenWall"]
 shape = SubResource("ConvexPolygonShape3D_jgc46")
 
-[node name="Player" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_is3ju")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.3877945, 0, -9.48501)
-camera = NodePath("../FixedAngleFollowCamera/CameraPivot/Camera3D")
-
-[node name="FixedAngleFollowCamera" parent="." node_paths=PackedStringArray("follow_node") instance=ExtResource("3_o00ia")]
-follow_node = NodePath("../Player")
-cutout_radius = 3.25
-cutout_interpolation = 9.0
-
-[node name="OcclusionCutoutMesh" parent="FixedAngleFollowCamera/CameraPivot" index="0"]
-visible = false
-
 [node name="SecondFloor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.37019157, 5.226581, -2.2757783)
 collision_layer = 17
 collision_mask = 3
 metadata/fade = &"fade_second_floor"
 
-[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="SecondFloor" groups=["fade_second_floor"]]
+[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="SecondFloor"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_ynsuh")
 
@@ -199,11 +204,9 @@ shape = SubResource("ConvexPolygonShape3D_pactg")
 
 [node name="SecondFloor2" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1369543, 5.226581, 2.3085582)
-collision_layer = 17
-collision_mask = 3
 metadata/fade = &"fade_second_floor"
 
-[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="SecondFloor2" groups=["fade_second_floor"]]
+[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="SecondFloor2"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_h1jm5")
 
@@ -212,11 +215,9 @@ shape = SubResource("ConvexPolygonShape3D_ycdrs")
 
 [node name="SecondFloor3" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1369543, 5.226581, -7.142578)
-collision_layer = 17
-collision_mask = 3
 metadata/fade = &"fade_second_floor"
 
-[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="SecondFloor3" groups=["fade_second_floor"]]
+[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="SecondFloor3"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_h1jm5")
 
@@ -225,8 +226,7 @@ shape = SubResource("ConvexPolygonShape3D_5m40n")
 
 [node name="Stairs" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.132098, 2.389934, -2.5097022)
-collision_layer = 17
-collision_mask = 3
+collision_layer = 6
 metadata/fade = &"fade_second_floor"
 
 [node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="Stairs"]
@@ -240,10 +240,8 @@ shape = SubResource("ConvexPolygonShape3D_x6kx1")
 
 [node name="ThirdFloor4" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1369543, 10.730133, 2.3085582)
-collision_layer = 17
-collision_mask = 3
 
-[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="ThirdFloor4" groups=["fade_second_floor", "fade_third_floor"]]
+[node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="ThirdFloor4"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_h1jm5")
 
@@ -252,8 +250,7 @@ shape = SubResource("ConvexPolygonShape3D_jufm4")
 
 [node name="Stairs2" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.132098, 7.8934865, -2.5097022)
-collision_layer = 17
-collision_mask = 3
+collision_layer = 6
 
 [node name="SecondFloorMeshInstance3D" type="MeshInstance3D" parent="Stairs2"]
 transform = Transform3D(1, 0, 0, 0, 0.76604444, 0.6427876, 0, -0.6427876, 0.76604444, 0, 0, 0)
@@ -267,7 +264,7 @@ shape = SubResource("ConvexPolygonShape3D_ymgag")
 [node name="WhiteWall2" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.286005, 7.9826694, 4.0666075)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WhiteWall2" groups=["fade_second_floor"]]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WhiteWall2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0075731277, -0.006088257, -0.0018568039)
 mesh = SubResource("BoxMesh_v7dth")
 skeleton = NodePath("../..")
@@ -279,7 +276,7 @@ shape = SubResource("ConvexPolygonShape3D_u2qr3")
 [node name="WhiteWall3" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.286005, 7.9826694, -8.568721)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WhiteWall3" groups=["fade_second_floor"]]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WhiteWall3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0075731277, -0.006088257, -0.0018568039)
 mesh = SubResource("BoxMesh_v7dth")
 skeleton = NodePath("../..")
@@ -291,7 +288,7 @@ shape = SubResource("ConvexPolygonShape3D_u2qr3")
 [node name="OrangeWall2" type="StaticBody3D" parent="."]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -5.1020026, 7.976581, -2.2693784)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="OrangeWall2" groups=["fade_second_floor"]]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="OrangeWall2"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_v7dth")
 skeleton = NodePath("../..")
@@ -303,7 +300,7 @@ shape = SubResource("ConvexPolygonShape3D_vnugj")
 [node name="GreenWall2" type="StaticBody3D" parent="."]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 7.900649, 7.976581, -2.2829554)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="GreenWall2" groups=["fade_second_floor"]]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GreenWall2"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_v7dth")
 skeleton = NodePath("../..")
@@ -314,15 +311,34 @@ shape = SubResource("ConvexPolygonShape3D_3i8ot")
 
 [node name="ThirdFloor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.37019157, 10.726582, -2.2466888)
-collision_layer = 17
-collision_mask = 3
 metadata/fade = &"third_floor"
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ThirdFloor" groups=["fade_second_floor", "fade_third_floor"]]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ThirdFloor"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_ynsuh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ThirdFloor"]
 shape = SubResource("ConvexPolygonShape3D_ofol1")
+
+[node name="FadeArea3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2845116, 6.1668997, -2.3232088)
+collision_layer = 16
+script = ExtResource("9_pi42a")
+metadata/_custom_type_script = "uid://ciieyu3xk8a1c"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FadeArea3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0396652, 0)
+shape = SubResource("BoxShape3D_h1jm5")
+
+[node name="FadeArea3D2" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2845116, 8.763645, -2.3232088)
+collision_layer = 16
+script = ExtResource("9_pi42a")
+fade = true
+metadata/_custom_type_script = "uid://ciieyu3xk8a1c"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FadeArea3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15193176, 0)
+shape = SubResource("BoxShape3D_pi42a")
 
 [editable path="FixedAngleFollowCamera"]
