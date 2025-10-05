@@ -36,6 +36,9 @@ extends Node3D
 
 @export var cutout_interpolation := 1.0
 
+## Expect room height for removing upper floors
+@export var room_height := 5.0
+
 @export_group("Linkage")
 ## Camera3D to control
 @export var camera : Camera3D
@@ -43,6 +46,8 @@ extends Node3D
 @export var camera_pivot: Node3D
 ## Area3D used to detect the roof
 @export var roof_area_3d: Area3D
+## Area3D to detect upper floors between player and camera
+@export var roof_camera_area_3d: Area3D
 
 # Targets for camera component transforms
 var camera_position := Vector3()
@@ -56,8 +61,8 @@ var _ray_query_params := PhysicsRayQueryParameters3D.new()
 var _cutout_target := [Vector3(), Vector3(), 0.0]
 var _cutout := [Vector3(), Vector3(), 0.0]
 
-## fadeout group if set
-var _fade_group : StringName = &""
+## List of FadeArea3Ds that are currently faded due to camera occlusion
+var _faded_areas := []
 
 func _ready() -> void:
     Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -72,10 +77,6 @@ func _ready() -> void:
     _cutout_target = [camera.global_position, Vector3(), 0]
     _cutout = _cutout_target.duplicate()
 
-    # set up the roof detector
-    roof_area_3d.area_entered.connect(func(a): a.fade = true)
-    roof_area_3d.area_exited.connect(func(a): a.fade = false)
-    
 func _unhandled_input(event: InputEvent) -> void:
     if event.is_action("camera_zoom_in"):
         distance -= event.factor
@@ -116,8 +117,40 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
     _handle_camera_occlusion(delta, Engine.get_process_frames() % 6 == 0)
-    if Engine.get_process_frames() % 30 == 0:
-        _handle_roof_occlusion(delta)
+
+    # Update the shape & location of the capsule between the camera root
+    # (or the player) and the camera.
+    if Engine.get_process_frames() % 15 == 14:
+        var shape: CapsuleShape3D = roof_camera_area_3d.get_child(0).shape
+        roof_camera_area_3d.position = camera.position/2
+        roof_camera_area_3d.position.y += v_offset
+        shape.height = camera.position.length()
+        roof_camera_area_3d.rotation = camera.rotation * -1.5
+
+    if Engine.get_process_frames() % 15 == 0:
+        # Poll the area3d's for any FadeArea3Ds and fade them out if they're not
+        # already faded
+        var overlapping_areas = roof_camera_area_3d.get_overlapping_areas() + \
+            roof_area_3d.get_overlapping_areas()
+        var filtered_areas = []
+        var limit = global_position.y + room_height
+        for area: FadeArea3D in overlapping_areas:
+            var area_shape: CollisionShape3D = area.get_child(0)
+            var box_center := area_shape.global_position.y
+            if box_center < limit:
+                continue
+           
+            if area in filtered_areas:
+                continue
+
+            filtered_areas.push_back(area)
+            if area not in _faded_areas:
+                area.fade = true
+
+        for area in _faded_areas:
+            if area not in filtered_areas:
+                area.fade = false
+        _faded_areas = filtered_areas
 
 func _update_camera_transform() -> void:
     if not is_node_ready():
@@ -180,52 +213,6 @@ func _handle_camera_occlusion(delta: float, raycast: bool) -> void:
                 "camera_occlusion_cutout_radius",
                 _cutout[2])
 
-func _handle_roof_occlusion(_delta: float) -> void:
-    var pos := follow_node.global_position
-    pos.y += 1.0
-    _ray_query_params.from = pos
-    _ray_query_params.to = camera.global_position
-    _ray_query_params.collision_mask = 16
-    var result = get_world_3d() \
-            .direct_space_state \
-            .intersect_ray(_ray_query_params)
-   
-    # print(result)
-
-    # go from collider to some sort of fade-group
-    #   - this contains those meshes that should be faded with this item
-    # if the fade-group is the same, return
-    # if the original fade-group is set, fade it in, and clear original fade group
-    # if the fade-group is set, kick off a tween to fade all members of that group
-    var group: StringName
-    var collider: StaticBody3D = result.get("collider", null)
-    if collider:
-        group = collider.get_meta("fade", &"")
-
-    if group == _fade_group:
-        return
-    print("group changed ", group)
-
-    if _fade_group != null:
-        for mesh_instance: MeshInstance3D in get_tree().get_nodes_in_group(_fade_group):
-            print("fade-in: ", mesh_instance.get_path())
-        create_tween() \
-            .tween_method(
-                _update_fade_group.bind(_fade_group),
-                1.0,
-                0.0,
-                0.5)
-        _fade_group = &""
-
-    _fade_group = group
-    if _fade_group:
-        var tween : Tween = create_tween()
-        tween.tween_method(_update_fade_group.bind(_fade_group), 0.0, 1.0, 0.5)
-
-        for mesh_instance: MeshInstance3D in get_tree().get_nodes_in_group(_fade_group):
-            print("fade-out: ", mesh_instance.get_path())
-    
-
 func _update_fade_group(value: float, group_name: StringName) -> void:
     for mesh_instance: MeshInstance3D in get_tree().get_nodes_in_group(group_name):
         mesh_instance.set_instance_shader_parameter("fade", value)
@@ -244,3 +231,20 @@ func _set_camera_vertical_offset(offset: float) -> void:
     v_offset = offset
     if camera:
         camera.v_offset = v_offset
+
+
+func _on_fade_area_entered(area: FadeArea3D) -> void:
+    var shape: CollisionShape3D = area.get_child(0)
+    var box_center: Vector3 = shape.global_position
+    print(area.get_path(), ", limit ", global_position.y + room_height, ", shape ", box_center.y)
+    if area.fade:
+        return
+    if global_position.y + room_height > box_center.y:
+        return
+    print("Fading")
+    area.fade = true
+
+func _on_fade_area_exited(area: FadeArea3D) -> void:
+    print("exit ", area.get_path())
+    if area.fade:
+        area.fade = false

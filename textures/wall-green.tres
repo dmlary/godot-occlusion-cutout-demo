@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://bbs47a03gr2ag"]
 
-[ext_resource type="Shader" uid="uid://b4fyngmqyduxx" path="res://textures/wall-visual-shader.tres" id="1_t2xmh"]
+[ext_resource type="Shader" uid="uid://b4fyngmqyduxx" path="res://textures/shader-fade-cutout.tres" id="1_t2xmh"]
 [ext_resource type="Texture2D" uid="uid://day357d4fl7xk" path="res://textures/wall-green.png" id="2_fcefn"]
 
 [resource]

@@ -8,14 +8,16 @@ radius = 0.2
 height = 15.0
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_eiyc8"]
+radius = 0.2
 
-[node name="FixedAngleFollowCamera" type="Node3D" node_paths=PackedStringArray("camera", "camera_pivot", "roof_area_3d")]
+[node name="FixedAngleFollowCamera" type="Node3D" node_paths=PackedStringArray("camera", "camera_pivot", "roof_area_3d", "roof_camera_area_3d")]
 script = ExtResource("1_o2y1q")
 v_offset = 1.4
 orbit_speed = -0.01
 camera = NodePath("CameraPivot/Camera3D")
 camera_pivot = NodePath("CameraPivot")
 roof_area_3d = NodePath("RoofDetectArea3D")
+roof_camera_area_3d = NodePath("CameraPivot/Area3D")
 
 [node name="RoofDetectArea3D" type="Area3D" parent="."]
 collision_layer = 0
@@ -33,6 +35,8 @@ fov = 22.0
 far = 500.0
 
 [node name="Area3D" type="Area3D" parent="CameraPivot"]
+collision_layer = 0
+collision_mask = 16
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CameraPivot/Area3D"]
 shape = SubResource("CapsuleShape3D_eiyc8")

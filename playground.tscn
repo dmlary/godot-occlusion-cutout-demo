@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://ch7tuei7e8ljj"]
+[gd_scene load_steps=40 format=3 uid="uid://ch7tuei7e8ljj"]
 
 [ext_resource type="Material" uid="uid://076cmmcj36l1" path="res://textures/dark-cross_major.tres" id="1_m8u5f"]
 [ext_resource type="Material" uid="uid://sxx8sg2wtcqh" path="res://textures/wall-light.tres" id="2_4bqqs"]
@@ -9,6 +9,7 @@
 [ext_resource type="Material" uid="uid://bbs47a03gr2ag" path="res://textures/wall-green.tres" id="5_ynsuh"]
 [ext_resource type="Material" uid="uid://dt43y0ephlxha" path="res://textures/floor-dark.tres" id="8_v7dth"]
 [ext_resource type="Script" uid="uid://ciieyu3xk8a1c" path="res://fade_area_3d.gd" id="9_pi42a"]
+[ext_resource type="Material" uid="uid://bf6wjhnmr2yi0" path="res://textures/red-object.tres" id="10_h1jm5"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_m8u5f"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -97,10 +98,15 @@ points = PackedVector3Array(6.499999, 2.5, 0.25, 6.499999, 2.5, -0.25, -6.5, 2.5
 points = PackedVector3Array(5, 0.25, 6.499999, 5, -0.25, 6.499999, 5, 0.25, -6.5, -5, 0.25, 6.499999, -5, -0.25, 6.499999, 5, -0.25, -6.5, -5, 0.25, -6.5, -5, -0.25, -6.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_h1jm5"]
-size = Vector3(13, 0.25804138, 13)
+size = Vector3(13, 5.06021, 13)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pi42a"]
-size = Vector3(13, 4.2533245, 13)
+size = Vector3(13.041473, 2.1557255, 11.9375)
+
+[sub_resource type="BoxMesh" id="BoxMesh_yjl7g"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_h1jm5"]
+points = PackedVector3Array(0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5)
 
 [node name="Node3D" type="Node3D"]
 
@@ -112,8 +118,9 @@ transform = Transform3D(0.4939419, 0.8216283, -0.2845143, 0, 0.3272179, 0.944948
 shadow_enabled = true
 
 [node name="Player" parent="." node_paths=PackedStringArray("camera") instance=ExtResource("2_is3ju")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.3877945, 0, -9.48501)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.469875, 0, -9.972481)
 collision_mask = 13
+speed = 12.0
 camera = NodePath("../FixedAngleFollowCamera/CameraPivot/Camera3D")
 
 [node name="FixedAngleFollowCamera" parent="." node_paths=PackedStringArray("follow_node") instance=ExtResource("3_o00ia")]
@@ -191,7 +198,6 @@ shape = SubResource("ConvexPolygonShape3D_jgc46")
 
 [node name="SecondFloor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.37019157, 5.226581, -2.2757783)
-collision_layer = 17
 collision_mask = 3
 metadata/fade = &"fade_second_floor"
 
@@ -313,7 +319,7 @@ shape = SubResource("ConvexPolygonShape3D_3i8ot")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.37019157, 10.726582, -2.2466888)
 metadata/fade = &"third_floor"
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ThirdFloor"]
+[node name="ThirdFloorMeshInstance3D" type="MeshInstance3D" parent="ThirdFloor"]
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_ynsuh")
 
@@ -327,18 +333,31 @@ script = ExtResource("9_pi42a")
 metadata/_custom_type_script = "uid://ciieyu3xk8a1c"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="FadeArea3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.0396652, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5588031, 0)
 shape = SubResource("BoxShape3D_h1jm5")
 
 [node name="FadeArea3D2" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2845116, 8.763645, -2.3232088)
 collision_layer = 16
 script = ExtResource("9_pi42a")
-fade = true
 metadata/_custom_type_script = "uid://ciieyu3xk8a1c"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="FadeArea3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15193176, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22862244, 2.9196024, -0.05978203)
 shape = SubResource("BoxShape3D_pi42a")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13967371, 6.874918, -2.6972487)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="StaticBody3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+material_override = ExtResource("10_h1jm5")
+instance_shader_parameters/fade = 0.0
+mesh = SubResource("BoxMesh_yjl7g")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_h1jm5")
 
 [editable path="FixedAngleFollowCamera"]
