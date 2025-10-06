@@ -326,38 +326,40 @@ mesh = SubResource("BoxMesh_ynsuh")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ThirdFloor"]
 shape = SubResource("ConvexPolygonShape3D_ofol1")
 
-[node name="FadeArea3D" type="Area3D" parent="."]
+[node name="SecondFloorFadeArea3D" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2845116, 6.1668997, -2.3232088)
 collision_layer = 16
 script = ExtResource("9_pi42a")
 metadata/_custom_type_script = "uid://ciieyu3xk8a1c"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FadeArea3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SecondFloorFadeArea3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5588031, 0)
 shape = SubResource("BoxShape3D_h1jm5")
 
-[node name="FadeArea3D2" type="Area3D" parent="."]
+[node name="ThirdFloorFadeArea3D" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2845116, 8.763645, -2.3232088)
 collision_layer = 16
 script = ExtResource("9_pi42a")
 metadata/_custom_type_script = "uid://ciieyu3xk8a1c"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FadeArea3D2"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ThirdFloorFadeArea3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22862244, 2.9196024, -0.05978203)
 shape = SubResource("BoxShape3D_pi42a")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="RedObject" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.13967371, 6.874918, -2.6972487)
 
-[node name="OmniLight3D" type="OmniLight3D" parent="StaticBody3D"]
+[node name="OmniLight3D" type="OmniLight3D" parent="RedObject"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1471891, 0)
+distance_fade_enabled = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RedObject"]
 material_override = ExtResource("10_h1jm5")
 instance_shader_parameters/fade = 0.0
 mesh = SubResource("BoxMesh_yjl7g")
 skeleton = NodePath("../..")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RedObject"]
 shape = SubResource("ConvexPolygonShape3D_h1jm5")
 
 [editable path="FixedAngleFollowCamera"]
