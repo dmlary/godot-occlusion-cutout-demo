@@ -6,10 +6,15 @@ first is an occlusion cutout that makes holes in walls to allow the player to
 remain visible.  The second is fading out upper floors when they are above the
 player, or obscure the camera.
 
+
+https://github.com/user-attachments/assets/5e994549-a833-4250-b22d-605456389bef
+
+
 ## Camera Occlusion Cutout
 
 The work to create the cutout is done in a
 [VisualShader](./textures/shader-fade-cutout.tres)
+
 
 It uses three global shader parameters do define a bean shape that should be
 rendered with alpha = 0.  The [camera controller](./fixed_angle_follow_camera/)
@@ -29,15 +34,14 @@ We just set a number of varyings to get world-space values in the fragment shade
 <img width="718" height="391" alt="Screenshot 2025-09-21 at 2 37 08 PM" src="https://github.com/user-attachments/assets/f3b491b2-32fe-4be9-89a2-379b60c205fe" />
 
 ### Fragment Shader
+
+The top part of the shader implements the cutout.
+The middle part of the graph implements the dithering-based fade to transparency
+described later.
 The bottom part of this shader is all just to wrap the texture around the
 mesh, similar to tri-planar, but in the mesh object's local space.
 
-The top-half of the shader implements the cutout.
-
-<img width="1213" height="743" alt="Screenshot 2025-09-21 at 2 35 53 PM" src="https://github.com/user-attachments/assets/f0effbd3-5700-4da2-aad9-baa39469f6b4" />
-
-The shader also implements the dithering-based fade to transparency in the
-middle of the graph.
+<img width="2296" height="1290" alt="Screenshot 2025-10-05 at 6 48 40 PM" src="https://github.com/user-attachments/assets/0bc02d33-8604-4e91-b0a8-24075f8dba09" />
 
 ## Fade
 
@@ -49,6 +53,8 @@ for mapping the texture onto the surface.
 This adds a `fade` shader instance parameter to any MeshInstance3D that is
 using the shader material.
 
+<img width="2323" height="1158" alt="Screenshot 2025-10-05 at 7 08 44 PM" src="https://github.com/user-attachments/assets/67db39ae-90bb-4be9-ae9d-96d342c75599" />
+
 I created a [FadeArea3D](./fade_area_3d.gd) class that is used to put the
 bounding box around all StaticBody3Ds that make up a single story of a
 building.  When the `fade` export is set to true, `FadeArea3D` will create a
@@ -59,6 +65,8 @@ every MeshInstance3D within a StaticBody3D within the `FadeArea3D` to fade out.
 When `fade` export is set to `false`, the `fade` shader instance variable is
 tweened back to `0.0`, causing the MeshInstance3Ds to fade in.
 
+<img width="1448" height="864" alt="Screenshot 2025-10-05 at 7 16 33 PM" src="https://github.com/user-attachments/assets/6d6ade39-e64d-4b7e-b2e9-bac9bea540a3" />
+
 ### But why don't the stairs fade out?!?
 It's important to show paths off the current floor even when the floor above is
 faded out.  There are two ways to do this:
@@ -66,8 +74,9 @@ faded out.  There are two ways to do this:
 * Move the StaticBody3D for the stairs into a separate layer that is not masked
   by the `FadeArea3D`
 
-I went with the second option in this project.  `FadeArea3D`s default to a
-collision mask of 1 (Default layer).  My stairs, I put in a separate collision
+I went with the second option in this project.  The `FadeArea3D`s default to a
+collision mask of 1 (Default layer).
+The stairs, which use the same material as the floors, are in a separate collision
 layer (Player, and Enemy), so they're not detected by the `FadeArea3D`, but
 the player is still able to traverse them.
 
